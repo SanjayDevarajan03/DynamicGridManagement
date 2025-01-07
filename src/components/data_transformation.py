@@ -45,7 +45,7 @@ class DataTransformation:
             )
 
             return preprocessor
-        except CustomException as e:
+        except Exception as e:
             raise CustomException(e, sys)
         
 
@@ -94,6 +94,6 @@ class DataTransformation:
                 test_arr,
                 self.data_transformation_config.preprocessor_obj_file_path
             )
-        except CustomException as e:
+        except Exception as e:
             raise CustomException(e, sys)
 
