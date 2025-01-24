@@ -38,3 +38,16 @@ st.subheader("Grid condition summary:")
 st.write(input_df)
 
 st.subheader("Predictions:")
+# clf = pickle.load(open("grid_clf.pkl", "rb"))
+# reg = pickle.load(open("grid_reg.pkl", "rb"))
+
+# clf_pred = clf.predict(input_df)[0]
+# reg_pred = clf.predict(input_df)[0]
+
+stability_dict = {0 : "unstable", 1 : "stable"}
+st.markdown(f"Best classifiers's prediction: **{stability_dict.get(clf_pred)}**")
+#st.markdown(f"Best regression's prediction: {round(reg_pred, 3)} (**{stability_dict.get(int(reg_pred < 0))}**)"
+            
+
+st.write("  \n")
+st.write("  \n")
