@@ -45,7 +45,7 @@ st.subheader("Predictions:")
 # reg_pred = clf.predict(input_df)[0]
 
 stability_dict = {0 : "unstable", 1 : "stable"}
-st.markdown(f"Best classifiers's prediction: **{stability_dict.get(clf_pred)}**")
+#st.markdown(f"Best classifiers's prediction: **{stability_dict.get(clf_pred)}**")
 #st.markdown(f"Best regression's prediction: {round(reg_pred, 3)} (**{stability_dict.get(int(reg_pred < 0))}**)"
             
 

@@ -17,7 +17,8 @@ from src.utils import save_object, evaluate_models
 
 @dataclass
 class ModelTrainerConfig:
-    trainer_model_file_path = os.path.join("artifacts", "model.pkl")
+    reg_trainer_model_file_path = os.path.join("artifacts", "reg_model.pkl")
+    clf_trainer_model_file_path = os.path.join("artifacts", "clf_model.pkl")
 
 class ModelTrainer:
     def __init__(self):
@@ -33,8 +34,8 @@ class ModelTrainer:
                 test_array[:, -1]
             )
 
-            models = {
-                "RandomForest": RandomForestRegressor(),
+            reg_models = {
+                "Random Forest": RandomForestRegressor(),
                 "Decision Tree": DecisionTreeRegressor(),
                 "Gradient Boosting": GradientBoostingRegressor(),
                 "Linear Regression": LinearRegression(),
@@ -44,7 +45,15 @@ class ModelTrainer:
                 "AdaBoost Regressor": AdaBoostRegressor()
             }
 
-            params = {
+            """clf_models = {
+                "KNeighborsClassifier": KNeighborsClassifier(),
+                "RandomForestClassifier": RandomForestClassifier(),
+                "DecisionTreeClassifier": DecisionTreeClassifier(),
+                "SVC": SVC(),
+                "LogisticRegression": LogisticRegression()
+            }"""
+
+            reg_params = {
                 "Decision Tree": {
                     "criterion": ["squared_error", "friedman_mse", "absolute_error", "poisson"]
                 },
@@ -72,7 +81,9 @@ class ModelTrainer:
                 }
             }
 
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train, X_test=X_test,y_test=y_test,models=models, params=params)
+
+
+            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train, X_test=X_test,y_test=y_test,models=reg_models, params=reg_params)
 
             ## To get model score from dict
             best_model_score = max(sorted(model_report.values()))
@@ -81,7 +92,7 @@ class ModelTrainer:
             best_model_name = list(model_report.keys())[
                 list(model_report.values()).index(best_model_score)
             ]
-            best_model = models[best_model_name]
+            best_model = reg_models[best_model_name]
 
             if best_model_score < 0.6:
                 raise CustomException("No best model found")
