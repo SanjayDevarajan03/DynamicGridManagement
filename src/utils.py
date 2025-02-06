@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 import dill
 import pickle
-from sklearn.metrics import r2_score
-from sklearn.metrics import f1_score
+from sklearn.metrics import f1_score, r2_score
 from sklearn.model_selection import GridSearchCV
 from src.exception import CustomException
+import logging
 
 def save_object(file_path, obj):
     try:
@@ -19,15 +19,19 @@ def save_object(file_path, obj):
     except CustomException as e:
         raise CustomException(e, sys)
     
-def evaluate_models(X_train, y_train, X_test, y_test, models, params):
+def evaluate_reg_models(X_train, y_train, X_test, y_test, models, param):
     try:
         reg_report = {}
-        clf_report = {}
+        #clf_report = {}
 
+        logging.info("Starting model evaluation")
         for i in range(len(list(models))):
             model = list(models.values())[i]
-            para = params[list(models.keys())[i]]
+            model_name = list(models.values())[i]
+            para = param[list(models.keys())[i]]
 
+            logging.info(f"Starting training for {model_name}")
+            
             gs = GridSearchCV(model, para, cv=3)
             gs.fit(X_train, y_train)
 
@@ -41,14 +45,14 @@ def evaluate_models(X_train, y_train, X_test, y_test, models, params):
             train_model_reg_score = r2_score(y_train, y_train_pred)
             test_model_reg_score = r2_score(y_test, y_test_pred)
 
-            train_model_clf_score = f1_score(y_train, y_train_pred)
-            test_model_clf_score = f1_score(y_test, y_test_pred)
+            #train_model_clf_score = f1_score(y_train, y_train_pred)
+            #test_model_clf_score = f1_score(y_test, y_test_pred)
 
             reg_report[list(models.keys())[i]] = test_model_reg_score
-            clf_report[list(models.keys())[i]] = test_model_clf_score
+            #clf_report[list(models.keys())[i]] = test_model_clf_score
 
 
-        return reg_report, clf_report
+        return reg_report#, clf_report
     
     except CustomException as e:
         raise CustomException(e, sys)

@@ -29,19 +29,30 @@ class DataTransformation:
 
         try:
             numerical_columns=["tau1", "tau2", "tau3", "tau4", "p1", "p2", "p3", "p4", "g1", "g2", "g3", "g4"]
+            categorical_columns = ["stabf"]
 
             num_pipeline = Pipeline(
                 steps = [
-                    ("inputer", SimpleImputer(strategy="mean")),
+                    ("imputer", SimpleImputer(strategy="mean")),
                     ("scaler", MinMaxScaler())
                 ]
             )
 
+            cat_pipeline = Pipeline(
+                steps = [
+                    ("imputer", SimpleImputer(strategy="most_frequent")),
+                    ("one_hot_encoder", OneHotEncoder()),
+                    ("scaler", StandardScaler(with_mean=False))
+                ]
+            )
+
             logging.info(f"Numerical columns: {numerical_columns}")
+            logging.info(f"Categorical columns: {categorical_columns}")
 
             preprocessor=ColumnTransformer(
                 [
-                    ("num_pipeline", num_pipeline, numerical_columns)
+                    ("num_pipeline", num_pipeline, numerical_columns),
+                    ("cat_pipeline", cat_pipeline, categorical_columns)
                 ]
             )
 
@@ -66,10 +77,10 @@ class DataTransformation:
 
             numerical_columns = ["tau1", "tau2", "tau3", "tau4", "p1", "p2", "p3", "p4", "g1", "g2", "g3", "g4"]
 
-            input_feature_train_df = train_df.drop(columns=target_columns, axis=1)
+            input_feature_train_df = train_df[numerical_columns+["stabf"]]
             target_feature_train_df = train_df[target_columns]
 
-            input_feature_test_df = test_df.drop(columns=target_columns, axis=1)
+            input_feature_test_df = test_df[numerical_columns+["stabf"]]
             target_feature_test_df = test_df[target_columns]
 
             print("Target Column Names:", target_columns)
@@ -81,7 +92,7 @@ class DataTransformation:
             )
 
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
-            input_feature_test_arr = preprocessing_obj.fit_transform(input_feature_test_df)
+            input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
 
             train_arr = np.c_[input_feature_train_arr, np.array(target_feature_train_df)]
             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
@@ -102,7 +113,7 @@ class DataTransformation:
         except Exception as e:
             raise CustomException(e, sys)
 
-    def initiate_reg_data_transformation(self, train_path, test_path):
+    def initiate_clf_data_transformation(self, train_path, test_path):
             try:
                 train_df = pd.read_csv(train_path)
                 test_df =pd.read_csv(test_path)
@@ -113,15 +124,18 @@ class DataTransformation:
 
                 preprocessing_obj = self.get_data_transformer_object()
 
-                target_columns = ["stabf"]
+                target_columns = ["stabf", "stab"]
 
                 numerical_columns = ["tau1", "tau2", "tau3", "tau4", "p1", "p2", "p3", "p4", "g1", "g2", "g3", "g4"]
 
+                train_df = pd.get_dummies(train_df, columns=["stabf"],axis=1)
+                test_df = pd.get_dummies(test_df, columns=["stabf"], axis=1)
+
                 input_feature_train_df = train_df.drop(columns=target_columns, axis=1)
-                target_feature_train_df = train_df[target_columns]
+                target_feature_train_df = train_df["stabf"]
 
                 input_feature_test_df = test_df.drop(columns=target_columns, axis=1)
-                target_feature_test_df = test_df[target_columns]
+                target_feature_test_df = test_df["stabf"]
 
                 print("Target Column Names:", target_columns)
                 print("DataFrame Columns:", train_df.columns)

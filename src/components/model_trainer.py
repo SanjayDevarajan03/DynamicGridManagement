@@ -13,7 +13,7 @@ from xgboost import XGBRegressor
 from src.exception import CustomException
 from src.logger import logging
 
-from src.utils import save_object, evaluate_models
+from src.utils import save_object, evaluate_reg_models
 
 @dataclass
 class ModelTrainerConfig:
@@ -41,7 +41,7 @@ class ModelTrainer:
                 "Linear Regression": LinearRegression(),
                 "XGBRegressor": XGBRegressor(),
                 "KNeighborsRegressor": KNeighborsRegressor(),
-                "CatBoosting Regressor": CatBoostRegressor(),
+                "CatBoosting Regressor": CatBoostRegressor(verbose=False),
                 "AdaBoost Regressor": AdaBoostRegressor()
             }
 
@@ -55,7 +55,7 @@ class ModelTrainer:
 
             reg_params = {
                 "Decision Tree": {
-                    "criterion": ["squared_error", "friedman_mse", "absolute_error", "poisson"]
+                    "criterion": ["squared_error", "friedman_mse", "absolute_error"]
                 },
                 "Random Forest": {
                     "n_estimators": [8,16,32,64,128,256]
@@ -65,12 +65,12 @@ class ModelTrainer:
                     "subsample": [0.6, 0.7, 0.75, 0.8, 0.85, 0.9],
                     "n_estimators": [8,16,32,64,128,256]
                 },
-                "LinearRegression": {},
+                "Linear Regression": {},
                 "XGBRegressor": {
                     "learning_rate": [0.1,0.01,0.05, 0.001],
                     "n_estimators": [8,16,32,64,128,256]
                 }, 
-                "CatBoostingRegressor": {
+                "CatBoosting Regressor": {
                     "depth": [6,8,10],
                     "learning_rate": [0.1, 0.01, 0.05, 0.001],
                     "iterations": [30, 50, 100]
@@ -83,7 +83,7 @@ class ModelTrainer:
 
 
 
-            model_report:dict=evaluate_models(X_train=X_train,y_train=y_train, X_test=X_test,y_test=y_test,models=reg_models, params=reg_params)
+            model_report:dict=evaluate_reg_models(X_train=X_train,y_train=y_train, X_test=X_test,y_test=y_test,models=reg_models, param=reg_params)
 
             ## To get model score from dict
             best_model_score = max(sorted(model_report.values()))
@@ -106,6 +106,6 @@ class ModelTrainer:
             predicted = best_model.predict(X_test)
 
             r2_square = r2_score(y_test, predicted)
-            return r2_score
+            return r2_square
         except Exception as e:
             raise CustomException(e, sys)
